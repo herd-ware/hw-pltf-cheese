@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-26 09:49:40 am                                       *
+ * Last Modified: 2023-02-27 06:11:40 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -74,8 +74,8 @@ class Cheese (p: CheeseParams) extends Module {
   //              CORE
   // ******************************  
   // Interrupts
-  if (p.useCeps) {
-    for (tl <- 0 until p.nCepsTrapLvl) {
+  if (p.useChamp) {
+    for (tl <- 0 until p.nChampTrapLvl) {
       if (p.pAbondance.size > 0) {
         m_abondance(0).io.i_irq_lei.get(tl) := m_io.io.o_irq_lei.get(0)(tl)
         m_abondance(0).io.i_irq_lsi.get(tl) := m_io.io.o_irq_lsi.get(0)(tl)

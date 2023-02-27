@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-26 09:46:19 am                                       *
+ * Last Modified: 2023-02-27 06:10:35 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -37,13 +37,13 @@ object CheeseConfigBase extends CheeseConfig (
     nDataBit = 32, 
 
     // ------------------------------
-    //             CEPS
+    //            CHAMP
     // ------------------------------
-    useCeps = true,
-    useCepsExtMie = true,
-    useCepsExtFr = false,
-    useCepsExtCst = true,
-    nCepsTrapLvl = 2,
+    useChamp = true,
+    useChampExtMie = true,
+    useChampExtFr = false,
+    useChampExtCst = true,
+    nChampTrapLvl = 2,
     nPart = 2,
     nDomeFlushCycle = 10,
     nDomeCfg = 4,

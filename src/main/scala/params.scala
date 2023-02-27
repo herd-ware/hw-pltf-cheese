@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-26 09:46:47 am                                       *
+ * Last Modified: 2023-02-27 06:11:32 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -72,20 +72,20 @@ trait CheeseParams extends GenParams {
   }
 
   // ******************************
-  //             DOME
+  //            CHAMP
   // ******************************
-  def useCeps: Boolean = {
+  def useChamp: Boolean = {
     if (pAbondance.size > 0) {
-      return pAbondance(0).useCeps
+      return pAbondance(0).useChamp
     } else {
-      return pAubrac(0).useCeps
+      return pAubrac(0).useChamp
     }    
   }
-  def nCepsTrapLvl: Int = {
+  def nChampTrapLvl: Int = {
     if (pAbondance.size > 0) {
-      return pAbondance(0).nCepsTrapLvl
+      return pAbondance(0).nChampTrapLvl
     } else {
-      return pAubrac(0).nCepsTrapLvl
+      return pAubrac(0).nChampTrapLvl
     }    
   }
   def useDome: Boolean = {
@@ -169,7 +169,7 @@ trait CheeseParams extends GenParams {
     nAddrBit            = nAddrBit            ,
     nAddrBase           = nIOAddrBase         ,
 
-    nCepsTrapLvl        = nCepsTrapLvl        ,
+    nChampTrapLvl       = nChampTrapLvl        ,
 
     useReqReg           = true                ,
     nPlicPrio           = nPlicPrio           ,
