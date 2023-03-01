@@ -1,10 +1,10 @@
 /*
- * File: base.scala                                                            *
+ * File: base.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-27 06:10:35 pm                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-01 09:48:01 am
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -40,13 +40,14 @@ object CheeseConfigBase extends CheeseConfig (
     //            CHAMP
     // ------------------------------
     useChamp = true,
+    nChampReg = 4,
     useChampExtMie = true,
     useChampExtFr = false,
     useChampExtCst = true,
     nChampTrapLvl = 2,
+    
     nPart = 2,
     nDomeFlushCycle = 10,
-    nDomeCfg = 4,
 
     // ------------------------------
     //           FRONT END

@@ -1,10 +1,10 @@
 /*
- * File: C32AB1V021d.scala                                                     *
+ * File: C32AB1V021d.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-27 06:10:42 pm                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-01 12:35:40 pm
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -41,13 +41,14 @@ object CheeseConfigC32AB1V021d extends CheeseConfig (
     //            CHAMP
     // ------------------------------
     useChamp = true,
+    nChampReg = 4,
     useChampExtMie = true,
     useChampExtFr = false,
-    useChampExtCst = false,
+    useChampExtCst = false,    
     nChampTrapLvl = 2,
+    
     nDomeFlushCycle = 20,
     nPart = 2,
-    nDomeCfg = 4,
 
     // ------------------------------
     //           FRONT END
@@ -112,7 +113,7 @@ object CheeseConfigC32AB1V021d extends CheeseConfig (
     useSpecLoad = true,
     nStoreQueue = 8,
     nMemQueue = 4,
-    nDmuQueue = 4,
+    nHfuQueue = 4,
 
     nGprPhy = 64,
     nGprReadPhy = 4,
