@@ -88,21 +88,21 @@ trait CheeseParams extends GenParams {
       return pAubrac(0).nChampTrapLvl
     }    
   }
-  def useDome: Boolean = {
+  def useField: Boolean = {
     if (pAbondance.size > 0) {
-      return pAbondance(0).useDome
+      return pAbondance(0).useField
     } else {
-      return pAubrac(0).useDome
+      return pAubrac(0).useField
     }    
   }
-  def nDome: Int = {
+  def nField: Int = {
     if (pAbondance.size > 0) {
-      return pAbondance(0).nDome
+      return pAbondance(0).nField
     } else {
-      return pAubrac(0).nDome
+      return pAubrac(0).nField
     }    
   }
-  def multiDome: Boolean = true
+  def multiField: Boolean = true
   def nPart: Int = {
     if (pAbondance.size > 0) {
       return pAbondance(0).nPart
@@ -291,7 +291,7 @@ trait CheeseParams extends GenParams {
     nBus = 0                            ,
     
     debug = debug                       ,  
-    multiDome = true                    ,
+    multiField = true                    ,
     nDepth = 4                          ,
     useDirect = false
   )

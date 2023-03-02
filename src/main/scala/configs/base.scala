@@ -47,7 +47,7 @@ object CheeseConfigBase extends CheeseConfig (
     nChampTrapLvl = 2,
     
     nPart = 2,
-    nDomeFlushCycle = 10,
+    nFieldFlushCycle = 10,
 
     // ------------------------------
     //           FRONT END

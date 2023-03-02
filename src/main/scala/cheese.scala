@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-27 06:11:40 pm                                       *
+ * Last Modified: 2023-03-02 01:47:55 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -19,7 +19,7 @@ import chisel3._
 import chisel3.util._
 
 import herd.common.bus._
-import herd.common.dome._
+import herd.common.field._
 import herd.common.mem.mb4s._
 import herd.common.mem.axi4._
 import herd.common.mem.ram._
@@ -68,7 +68,7 @@ class Cheese (p: CheeseParams) extends Module {
   val m_rom = if (p.useRom) Some(Module(new Mb4sDataRam(p.pRom))) else None 
   val m_ram = if (p.useRom) Some(Module(new Mb4sDataRam(p.pRam))) else None 
   val m_io = Module(new IOPltf(p.pIO))
-  val m_pall = if (p.useDome) Some(Module(new Part2Rsrc(1, p.nDome, p.nPart, p.nPart))) else None
+  val m_pall = if (p.useField) Some(Module(new Part2Rsrc(1, p.nField, p.nPart, p.nPart))) else None
 
   // ******************************
   //              CORE
@@ -95,18 +95,18 @@ class Cheese (p: CheeseParams) extends Module {
   }
 
   // ******************************
-  //           DOME SELECT
+  //          FIELD SELECT
   // ******************************  
-  val m_slct = if (p.useDome) Some(Module(new StaticSlct(p.nDome, p.nPart, 1))) else None
+  val m_slct = if (p.useField) Some(Module(new StaticSlct(p.nField, p.nPart, 1))) else None
 
-  if (p.useDome) {
+  if (p.useField) {
     if (p.pAbondance.size > 0) {
       m_pall.get.io.b_part <> m_abondance(0).io.b_pall.get
     } else {
       m_pall.get.io.b_part <> m_aubrac(0).io.b_pall.get
     }
-    for (d <- 0 until p.nDome) {
-      m_slct.get.io.i_weight(d) := m_pall.get.io.b_rsrc.weight(d)
+    for (f <- 0 until p.nField) {
+      m_slct.get.io.i_weight(f) := m_pall.get.io.b_rsrc.weight(f)
     }
   }
   
@@ -115,11 +115,11 @@ class Cheese (p: CheeseParams) extends Module {
   // ******************************  
   var mem: Int = 0
   
-  if (p.useDome) {
+  if (p.useField) {
     if (p.pAbondance.size > 0) {
-      m_llcross.io.b_dome.get <> m_abondance(0).io.b_dome.get
+      m_llcross.io.b_field.get <> m_abondance(0).io.b_field.get
     } else {
-      m_llcross.io.b_dome.get <> m_aubrac(0).io.b_dome.get
+      m_llcross.io.b_field.get <> m_aubrac(0).io.b_field.get
     }    
     m_llcross.io.i_slct_req.get := m_slct.get.io.o_slct
     m_llcross.io.i_slct_write.get := m_slct.get.io.o_slct
@@ -159,11 +159,11 @@ class Cheese (p: CheeseParams) extends Module {
   // ------------------------------
   //              BOOT
   // ------------------------------
-  if (p.useDome) {
+  if (p.useField) {
     if (p.pAbondance.size > 0) {
-      m_boot.io.b_dome.get <> m_abondance(0).io.b_dome.get        
+      m_boot.io.b_field.get <> m_abondance(0).io.b_field.get        
     } else {
-      m_boot.io.b_dome.get <> m_aubrac(0).io.b_dome.get        
+      m_boot.io.b_field.get <> m_aubrac(0).io.b_field.get        
     }
     m_boot.io.i_slct.get := m_slct.get.io.o_slct
   }
@@ -175,11 +175,11 @@ class Cheese (p: CheeseParams) extends Module {
   //              ROM
   // ------------------------------
   if (p.useRom) {
-    if (p.useDome) {
+    if (p.useField) {
       if (p.pAbondance.size > 0) {
-        m_rom.get.io.b_dome.get <> m_abondance(0).io.b_dome.get        
+        m_rom.get.io.b_field.get <> m_abondance(0).io.b_field.get        
       } else {
-        m_rom.get.io.b_dome.get <> m_aubrac(0).io.b_dome.get        
+        m_rom.get.io.b_field.get <> m_aubrac(0).io.b_field.get        
       }
       m_rom.get.io.i_slct.get := m_slct.get.io.o_slct
     }
@@ -192,11 +192,11 @@ class Cheese (p: CheeseParams) extends Module {
   //              RAM
   // ------------------------------
   if (p.useRam) {
-    if (p.useDome) {
+    if (p.useField) {
       if (p.pAbondance.size > 0) {
-        m_ram.get.io.b_dome.get <> m_abondance(0).io.b_dome.get
+        m_ram.get.io.b_field.get <> m_abondance(0).io.b_field.get
       } else {
-        m_ram.get.io.b_dome.get <> m_aubrac(0).io.b_dome.get
+        m_ram.get.io.b_field.get <> m_aubrac(0).io.b_field.get
       }      
       m_ram.get.io.i_slct.get := m_slct.get.io.o_slct
     }
@@ -208,11 +208,11 @@ class Cheese (p: CheeseParams) extends Module {
   // ------------------------------
   //             I/Os
   // ------------------------------
-  if (p.useDome) {
+  if (p.useField) {
     if (p.pAbondance.size > 0) {
-      m_io.io.b_dome.get <> m_abondance(0).io.b_dome.get
+      m_io.io.b_field.get <> m_abondance(0).io.b_field.get
     } else {
-      m_io.io.b_dome.get <> m_aubrac(0).io.b_dome.get
+      m_io.io.b_field.get <> m_aubrac(0).io.b_field.get
     }    
     m_io.io.i_slct.get := m_slct.get.io.o_slct
   }
@@ -239,19 +239,19 @@ class Cheese (p: CheeseParams) extends Module {
   if (p.nI2c > 0) m_io.io.b_i2c <> io.b_i2c
 
   // ******************************
-  //             DOME
+  //            FIELD
   // ******************************
-  if (p.useDome) {
-    for (d <- 0 until p.nDome) {
+  if (p.useField) {
+    for (f <- 0 until p.nField) {
       val w_free = Wire(Vec(2, Bool()))
 
-      if (p.useRom) w_free(0) := m_rom.get.io.b_dome.get(d).free else w_free(0) := true.B
-      if (p.useRam) w_free(1) := m_ram.get.io.b_dome.get(d).free else w_free(1) := true.B
+      if (p.useRom) w_free(0) := m_rom.get.io.b_field.get(f).free else w_free(0) := true.B
+      if (p.useRam) w_free(1) := m_ram.get.io.b_field.get(f).free else w_free(1) := true.B
       
       if (p.pAbondance.size > 0) {
-        m_abondance(0).io.b_dome.get(d).free := m_llcross.io.b_dome.get(d).free & m_io.io.b_dome.get(d).free & w_free.asUInt.andR
+        m_abondance(0).io.b_field.get(f).free := m_llcross.io.b_field.get(f).free & m_io.io.b_field.get(f).free & w_free.asUInt.andR
       } else {
-        m_aubrac(0).io.b_dome.get(d).free := m_llcross.io.b_dome.get(d).free & m_io.io.b_dome.get(d).free & w_free.asUInt.andR
+        m_aubrac(0).io.b_field.get(f).free := m_llcross.io.b_field.get(f).free & m_io.io.b_field.get(f).free & w_free.asUInt.andR
       }
     }
 

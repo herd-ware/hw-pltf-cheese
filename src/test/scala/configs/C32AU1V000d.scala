@@ -47,7 +47,7 @@ object CheeseConfigC32AU1V000d extends CheeseConfig (
     nChampTrapLvl = 2,
     
     nPart = 2,
-    nDomeFlushCycle = 10,
+    nFieldFlushCycle = 10,
 
     // ------------------------------
     //           FRONT END
