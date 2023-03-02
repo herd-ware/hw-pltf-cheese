@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-02 01:47:55 pm                                       *
+ * Last Modified: 2023-03-02 06:10:37 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -51,7 +51,6 @@ class Cheese (p: CheeseParams) extends Module {
     val b_i2c = Vec(p.nI2c, new I2cIO())
 
     val o_dbg = if (p.debug) Some(Output(new CheeseDbgBus(p))) else None
-    val o_dfp = if (p.debug) Some(Output(new CheeseDfpBus(p))) else None
     val o_etd = if (p.debug) Some(Output(Vec(p.nCommit, new EtdBus(p.nHart, p.nAddrBit, p.nInstrBit)))) else None
   })  
   
@@ -281,13 +280,6 @@ class Cheese (p: CheeseParams) extends Module {
 
     dontTouch(m_llcross.io.b_m)
     dontTouch(m_llcross.io.b_s)
-
-    // ------------------------------
-    //         DATA FOOTPRINT
-    // ------------------------------
-    for (no <- 0 until p.nAubrac) {
-      io.o_dfp.get.aubrac(no) := m_aubrac(no).io.o_dfp.get
-    }
 
     // ------------------------------
     //       EXECUTION TRACKER

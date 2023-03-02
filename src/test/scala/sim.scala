@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-26 09:47:24 am                                       *
+ * Last Modified: 2023-03-02 06:11:10 pm                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -51,7 +51,6 @@ class CheeseSim (p: CheeseParams) extends Module {
     val b_host_uart_port = Vec(p.nUart, new UartPortIO(p, 8))
 
     val o_dbg = if (p.debug) Some(Output(new CheeseDbgBus(p))) else None
-    val o_dfp = if (p.debug) Some(Output(new CheeseDfpBus(p))) else None
     val o_etd = if (p.debug) Some(Output(Vec(p.nCommit, new EtdBus(p.nHart, p.nAddrBit, p.nInstrBit)))) else None
   })
 
@@ -107,11 +106,6 @@ class CheeseSim (p: CheeseParams) extends Module {
     if (p.usePs2Keyboard) {
       dontTouch(m_cheese.io.b_ps2_kb.get)
     }
-
-    // ------------------------------
-    //         DATA FOOTPRINT
-    // ------------------------------
-    io.o_dfp.get := m_cheese.io.o_dfp.get
 
     // ------------------------------
     //       EXECUTION TRACKER
