@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-01 12:35:42 pm
+ * Last Modified: 2023-03-02 11:37:09 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -125,6 +125,8 @@ object CheeseConfigC32AB1V020d extends CheeseConfig (
     nIOAddrBase = "10000000",
     nScratch = 8,
     nCTimer = 2,
+    isHpmAct = Array("ALL"),
+    hasHpmMap = Array(),
 
     nUnCacheBase = "18000000",
     nUnCacheByte = "08000000",

@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-01 09:47:48 am
+ * Last Modified: 2023-03-03 07:00:44 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -86,6 +86,8 @@ object CheeseConfigC32AU1V000 extends CheeseConfig (
     nIOAddrBase = "10000000",
     nScratch = 8,
     nCTimer = 2,
+    isHpmAct = Array("ALL"),
+    hasHpmMap = Array(),
 
     nUnCacheBase = "18000000",
     nUnCacheByte = "08000000",
@@ -203,21 +205,21 @@ object CheeseConfigC32AU1V000 extends CheeseConfig (
   //             BOOT
   // ------------------------------
   nBootAddrBase = "00000000",
-  nBootByte = "00004000",
+  nBootByte = "04000000",
 
   // ------------------------------
   //              ROM
   // ------------------------------
   useRom = true,
-  nRomAddrBase = "00004000",
-  nRomByte = "00004000",
+  nRomAddrBase = "04000000",
+  nRomByte = "04000000",
 
   // ------------------------------
   //              RAM
   // ------------------------------
   useRam = true,
-  nRamAddrBase = "00008000",
-  nRamByte = "00004000"
+  nRamAddrBase = "08000000",
+  nRamByte = "04000000"
 )
 
 object CheeseC32AU1V000 extends App {

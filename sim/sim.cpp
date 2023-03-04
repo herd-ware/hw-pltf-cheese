@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-02 07:54:43 am
+ * Last Modified: 2023-03-03 06:43:31 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -32,6 +32,10 @@ using namespace std;
 
 #define TRIGGER_DELAY 100
 #define RESET_DELAY 50
+
+#define GPIOA_BIT_UARTW   27
+#define GPIOA_BIT_INSTRET 30
+#define GPIOA_BIT_END     31
 
 
 int main(int argc, char **argv) {
@@ -252,26 +256,16 @@ int main(int argc, char **argv) {
     //             WRITE
     // ..............................
     if (use_uart_in) {    
-      if (!f_uart.eof() && !(dut->io_b_host_uart_port_0_send_3_ready)) {
-        string uart_swdata;
-        uint32_t uart_wdata;
+      if (!f_uart.eof() && dut->io_o_host_uart_status_0_idle && (dut->io_b_gpio_0_eno & dut->io_b_gpio_0_out & (1 << GPIOA_BIT_UARTW))) {
+        string uart_swbyte;
+        uint8_t uart_wbyte;
 
-        f_uart >> uart_swdata;
-        uart_wdata = stoi(uart_swdata);
-
+        f_uart >> uart_swbyte;
+        uart_wbyte = stoi(uart_swbyte);
         dut->io_b_host_uart_port_0_send_0_valid = 1;
-        dut->io_b_host_uart_port_0_send_0_data = (uart_wdata & 0x000000ff);
-        dut->io_b_host_uart_port_0_send_1_valid = 1;
-        dut->io_b_host_uart_port_0_send_1_data = (uart_wdata & 0x0000ff00) >> 8;
-        dut->io_b_host_uart_port_0_send_2_valid = 1;
-        dut->io_b_host_uart_port_0_send_2_data = (uart_wdata & 0x00ff0000) >> 16;
-        dut->io_b_host_uart_port_0_send_3_valid = 1;
-        dut->io_b_host_uart_port_0_send_3_data = (uart_wdata & 0xff000000) >> 24;
+        dut->io_b_host_uart_port_0_send_0_data = (uart_wbyte & 0xff);
       } else {
         dut->io_b_host_uart_port_0_send_0_valid = 0;
-        dut->io_b_host_uart_port_0_send_1_valid = 0;
-        dut->io_b_host_uart_port_0_send_2_valid = 0;
-        dut->io_b_host_uart_port_0_send_3_valid = 0;
       }
     }
 
@@ -287,18 +281,21 @@ int main(int argc, char **argv) {
     // ------------------------------
     //             END
     // ------------------------------
-    // SW trigger
-    if (DBG_CORE_SIGNAL(CORE, 0, x_31) == 1) {
+    // Instruction retired
+    if ((instret == 0) && (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_INSTRET))) {
+      instret = dut->io_b_gpio_1_out;
+    }
+
+    // SW Trigger
+    if (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_END)) {
       end = true;
-      result = DBG_CORE_SIGNAL(CORE, 0, x_30);
-      instret = DBG_CORE_SIGNAL(CORE, 0, csr_riscv_instret);
+      result = dut->io_b_gpio_1_out;
     }
 
     // Test trigger
     if (cycle > (ntrigger + TRIGGER_DELAY) && (ntrigger > 0)) {
       end = true;
-      result = DBG_CORE_SIGNAL(CORE, 0, x_30);
-      instret = DBG_CORE_SIGNAL(CORE, 0, csr_riscv_instret);
+      result = 0xffffffff;
     }
 
     cycle = cycle + 1;
