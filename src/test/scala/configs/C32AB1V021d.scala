@@ -1,10 +1,10 @@
 /*
- * File: C32AB1V021d.scala
+ * File: C32AB1V021d.scala                                                     *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-01 12:35:40 pm
- * Modified By: Mathieu Escouteloup
+ * Last Modified: 2023-03-04 10:53:20 am                                       *
+ * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -241,21 +241,21 @@ object CheeseConfigC32AB1V021d extends CheeseConfig (
   //             BOOT
   // ------------------------------
   nBootAddrBase = "00000000",
-  nBootByte = "00004000",
+  nBootByte = "00040000",
 
   // ------------------------------
   //              ROM
   // ------------------------------
   useRom = true,
-  nRomAddrBase = "00004000",
-  nRomByte = "00004000",
+  nRomAddrBase = "04000000",
+  nRomByte = "00040000",
 
   // ------------------------------
   //              RAM
   // ------------------------------
   useRam = true,
-  nRamAddrBase = "00008000",
-  nRamByte = "00004000"
+  nRamAddrBase = "08000000",
+  nRamByte = "00040000"
 )
 
 object CheeseSimC32AB1V021 extends App {

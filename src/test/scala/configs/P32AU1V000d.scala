@@ -1,10 +1,10 @@
 /*
- * File: P32AU1V000d.scala
+ * File: P32AU1V000d.scala                                                     *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-01 09:49:52 am
- * Modified By: Mathieu Escouteloup
+ * Last Modified: 2023-03-04 10:53:45 am                                       *
+ * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -203,21 +203,21 @@ object CheeseConfigP32AU1V000d extends CheeseConfig (
   //             BOOT
   // ------------------------------
   nBootAddrBase = "00000000",
-  nBootByte = "00004000",
+  nBootByte = "00040000",
 
   // ------------------------------
   //              ROM
   // ------------------------------
   useRom = true,
-  nRomAddrBase = "00004000",
-  nRomByte = "00004000",
+  nRomAddrBase = "04000000",
+  nRomByte = "00040000",
 
   // ------------------------------
   //              RAM
   // ------------------------------
   useRam = true,
-  nRamAddrBase = "00008000",
-  nRamByte = "00004000"
+  nRamAddrBase = "08000000",
+  nRamByte = "00040000"
 )
 
 object CheeseSimP32AU1V000 extends App {
