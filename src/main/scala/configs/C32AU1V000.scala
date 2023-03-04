@@ -3,8 +3,13 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-03 07:00:44 pm
+<<<<<<< HEAD
+ * Last Modified: 2023-03-04 11:31:27 am
  * Modified By: Mathieu Escouteloup
+=======
+ * Last Modified: 2023-03-04 11:31:27 am
+ * Modified By: Mathieu Escouteloup
+>>>>>>> dc0e9c0366fe0502bc73b1b9b7ca1da3a74dfecd
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -205,21 +210,21 @@ object CheeseConfigC32AU1V000 extends CheeseConfig (
   //             BOOT
   // ------------------------------
   nBootAddrBase = "00000000",
-  nBootByte = "04000000",
+  nBootByte = "00040000",
 
   // ------------------------------
   //              ROM
   // ------------------------------
   useRom = true,
   nRomAddrBase = "04000000",
-  nRomByte = "04000000",
+  nRomByte = "00040000",
 
   // ------------------------------
   //              RAM
   // ------------------------------
   useRam = true,
   nRamAddrBase = "08000000",
-  nRamByte = "04000000"
+  nRamByte = "00040000"
 )
 
 object CheeseC32AU1V000 extends App {
