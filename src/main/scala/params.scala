@@ -1,10 +1,10 @@
 /*
- * File: params.scala                                                          *
+ * File: params.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-27 06:11:32 pm                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-03 03:52:36 pm
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -150,6 +150,7 @@ trait CheeseParams extends GenParams {
   def nIOAddrBase: String
   def nPlicPrio: Int
   def nGpio: Int
+  def nGpio32b: Int = (nGpio + 32 - 1) / 32 
   def nUart: Int
   def nUartDefCycle: Int
   def nUartDepth: Int

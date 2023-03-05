@@ -1,10 +1,10 @@
 /*
- * File: base.scala                                                            *
+ * File: base.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-04 10:52:49 am                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-04 11:31:16 am
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -86,6 +86,8 @@ object CheeseConfigBase extends CheeseConfig (
     nIOAddrBase = "10000000",
     nScratch = 8,
     nCTimer = 2,
+    isHpmAct = Array("ALL"),
+    hasHpmMap = Array(),
 
     nUnCacheBase = "18000000",
     nUnCacheByte = "08000000",

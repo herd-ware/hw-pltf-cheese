@@ -1,10 +1,10 @@
 /*
- * File: sim.scala                                                             *
+ * File: sim.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-02 06:11:10 pm                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-03 06:33:12 pm
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -21,7 +21,7 @@ import chisel3.util._
 import herd.common.bus._
 import herd.core.aubrac.common._
 import herd.io.periph.uart.{UartParams, UartConfig}
-import herd.io.periph.uart.{UartIO, UartConfigBus, UartPortIO, Uart}
+import herd.io.periph.uart.{UartIO, UartStatusBus, UartConfigBus, UartPortIO, Uart}
 import herd.io.periph.ps2.{Ps2IO}
 import herd.io.periph.spi.{SpiIO}
 import herd.io.periph.i2c.{I2cIO}
@@ -37,7 +37,7 @@ class CheeseSim (p: CheeseParams) extends Module {
   )
 
   val io = IO(new Bundle {
-    val b_gpio = new BiDirectIO(UInt(p.nGpio.W))
+    val b_gpio = Vec(p.nGpio32b, new BiDirectIO(UInt(32.W)))
     val b_spi_flash = if (p.useSpiFlash) Some(new SpiIO(1)) else None
     val b_ps2_kb = if (p.usePs2Keyboard) Some(new Ps2IO()) else None
     val b_spi = MixedVec(
@@ -47,6 +47,7 @@ class CheeseSim (p: CheeseParams) extends Module {
     )
     val b_i2c = Vec(p.nI2c, new I2cIO())
 
+    val o_host_uart_status = Vec(p.nUart, Output(new UartStatusBus()))
     val i_host_uart_config = Vec(p.nUart, Input(new UartConfigBus()))
     val b_host_uart_port = Vec(p.nUart, new UartPortIO(p, 8))
 
@@ -81,6 +82,7 @@ class CheeseSim (p: CheeseParams) extends Module {
     val m_host_uart = Seq.fill(p.nUart){Module(new Uart(pHostUart))}
 
     for (u <- 0 until p.nUart) {
+      io.o_host_uart_status(u) := m_host_uart(u).io.o_status.get
       m_host_uart(u).io.i_config.get := io.i_host_uart_config(u)
       m_host_uart(u).io.b_port.get <> io.b_host_uart_port(u)
       m_host_uart(u).io.b_uart.rx := m_cheese.io.b_uart(u).tx

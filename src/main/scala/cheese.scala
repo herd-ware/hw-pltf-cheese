@@ -1,10 +1,10 @@
 /*
- * File: cheese.scala                                                          *
+ * File: cheese.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-02 06:10:37 pm                                       *
- * Modified By: Mathieu Escouteloup                                            *
+ * Last Modified: 2023-03-03 03:53:24 pm
+ * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -39,7 +39,7 @@ class Cheese (p: CheeseParams) extends Module {
   require ((p.pAbondance.size < 2),  "Only one Abondance core is possible.")
   
   val io = IO(new Bundle {
-    val b_gpio = new BiDirectIO(UInt(p.nGpio.W))
+    val b_gpio = Vec(p.nGpio32b, new BiDirectIO(UInt(32.W)))
     val b_spi_flash = if (p.useSpiFlash) Some(new SpiIO(1)) else None
     val b_ps2_kb = if (p.usePs2Keyboard) Some(new Ps2IO()) else None
     val b_uart = Vec(p.nUart, new UartIO())
@@ -219,7 +219,6 @@ class Cheese (p: CheeseParams) extends Module {
   mem = mem + 1
 
   // GPIO
-  m_io.io.b_gpio.in := 0.U
   m_io.io.b_gpio <> io.b_gpio
 
   // SPI FLash

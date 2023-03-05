@@ -1,10 +1,15 @@
 /*
- * File: C32AU1V000.scala                                                      *
+ * File: C32AU1V000.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-04 10:53:01 am                                       *
- * Modified By: Mathieu Escouteloup                                            *
+<<<<<<< HEAD
+ * Last Modified: 2023-03-04 11:31:27 am
+ * Modified By: Mathieu Escouteloup
+=======
+ * Last Modified: 2023-03-04 11:31:27 am
+ * Modified By: Mathieu Escouteloup
+>>>>>>> dc0e9c0366fe0502bc73b1b9b7ca1da3a74dfecd
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -86,6 +91,8 @@ object CheeseConfigC32AU1V000 extends CheeseConfig (
     nIOAddrBase = "10000000",
     nScratch = 8,
     nCTimer = 2,
+    isHpmAct = Array("ALL"),
+    hasHpmMap = Array(),
 
     nUnCacheBase = "18000000",
     nUnCacheByte = "08000000",

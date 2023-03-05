@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-04 01:05:05 pm
+ * Last Modified: 2023-03-05 06:30:37 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -32,6 +32,11 @@ using namespace std;
 
 #define TRIGGER_DELAY 100
 #define RESET_DELAY 50
+
+#define GPIOA_BIT_UARTW   27
+#define GPIOA_BIT_CYCLE   29
+#define GPIOA_BIT_INSTRET 30
+#define GPIOA_BIT_END     31
 
 
 int main(int argc, char **argv) {
@@ -130,9 +135,10 @@ int main(int argc, char **argv) {
   }
 
 	// Test variables
-  int cycle = 0;      // Cycle
+  int clock = 0;      // Clock cycle since start
   bool end = false;   // Test end
   int result = -1;    // SW result
+  int cycle = 0;      // Cycles
   int instret = 0;    // Retired instructions
 
   if (use_etd) {
@@ -197,15 +203,15 @@ int main(int argc, char **argv) {
     dut->reset = 1;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10);
+      dut_trace->dump(clock * 10);
     }  
 
     dut->clock = 1;
   	dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10 + 5);
+      dut_trace->dump(clock * 10 + 5);
     }
-    cycle = cycle + 1;
+    clock = clock + 1;
   }
   dut->reset = 0;
 
@@ -220,7 +226,7 @@ int main(int argc, char **argv) {
 		dut->clock = 0;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10);
+      dut_trace->dump(clock * 10);
     }   
 
     if (use_etd) {
@@ -233,13 +239,13 @@ int main(int argc, char **argv) {
 		dut->clock = 1;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10 + 5);
+      dut_trace->dump(clock * 10 + 5);
     }   
 
     // ------------------------------
     //             RESET
     // ------------------------------
-    if (use_reset && (cycle > nreset) && (cycle < (nreset + RESET_DELAY))) {
+    if (use_reset && (clock > nreset) && (clock < (nreset + RESET_DELAY))) {
       dut->reset = 1;
     } else {
       dut->reset = 0;
@@ -252,26 +258,16 @@ int main(int argc, char **argv) {
     //             WRITE
     // ..............................
     if (use_uart_in) {    
-      if (!f_uart.eof() && !(dut->io_b_host_uart_port_0_send_3_ready)) {
-        string uart_swdata;
-        uint32_t uart_wdata;
+      if (!f_uart.eof() && dut->io_o_host_uart_status_0_idle && (dut->io_b_gpio_0_eno & dut->io_b_gpio_0_out & (1 << GPIOA_BIT_UARTW))) {
+        string uart_swbyte;
+        uint8_t uart_wbyte;
 
-        f_uart >> uart_swdata;
-        uart_wdata = stoi(uart_swdata);
-
+        f_uart >> uart_swbyte;
+        uart_wbyte = stoi(uart_swbyte);
         dut->io_b_host_uart_port_0_send_0_valid = 1;
-        dut->io_b_host_uart_port_0_send_0_data = (uart_wdata & 0x000000ff);
-        dut->io_b_host_uart_port_0_send_1_valid = 1;
-        dut->io_b_host_uart_port_0_send_1_data = (uart_wdata & 0x0000ff00) >> 8;
-        dut->io_b_host_uart_port_0_send_2_valid = 1;
-        dut->io_b_host_uart_port_0_send_2_data = (uart_wdata & 0x00ff0000) >> 16;
-        dut->io_b_host_uart_port_0_send_3_valid = 1;
-        dut->io_b_host_uart_port_0_send_3_data = (uart_wdata & 0xff000000) >> 24;
+        dut->io_b_host_uart_port_0_send_0_data = (uart_wbyte & 0xff);
       } else {
         dut->io_b_host_uart_port_0_send_0_valid = 0;
-        dut->io_b_host_uart_port_0_send_1_valid = 0;
-        dut->io_b_host_uart_port_0_send_2_valid = 0;
-        dut->io_b_host_uart_port_0_send_3_valid = 0;
       }
     }
 
@@ -287,21 +283,29 @@ int main(int argc, char **argv) {
     // ------------------------------
     //             END
     // ------------------------------
-    // SW trigger
-    if (DBG_CORE_SIGNAL(CORE, 0, x_31) == 1) {
+    // Cycles
+    if ((cycle == 0) && (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_CYCLE))) {
+      cycle = dut->io_b_gpio_1_out;
+    }
+
+    // Instruction retired
+    if ((instret == 0) && (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_INSTRET))) {
+      instret = dut->io_b_gpio_1_out;
+    }
+
+    // SW Trigger
+    if (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_END)) {
       end = true;
-      result = DBG_CORE_SIGNAL(CORE, 0, x_30);
-      instret = DBG_CORE_SIGNAL(CORE, 0, csr_riscv_instret);
+      result = dut->io_b_gpio_1_out;
     }
 
     // Test trigger
-    if (cycle > (ntrigger + TRIGGER_DELAY) && (ntrigger > 0)) {
+    if (clock > (ntrigger + TRIGGER_DELAY) && (ntrigger > 0)) {
       end = true;
-      result = DBG_CORE_SIGNAL(CORE, 0, x_30);
-      instret = DBG_CORE_SIGNAL(CORE, 0, csr_riscv_instret);
+      result = 0xffffffff;
     }
 
-    cycle = cycle + 1;
+    clock = clock + 1;
 	}
 
   // ******************************
@@ -329,7 +333,7 @@ int main(int argc, char **argv) {
       cout << "\033[1;33m";
       cout << "TEST REPORT: WRONG INFOS." << endl;
       cout << "\033[0m";
-    } else if (!use_trigger || (cycle >= (ntrigger + TRIGGER_DELAY))) {
+    } else if (!use_trigger || (clock >= (ntrigger + TRIGGER_DELAY))) {
       cout << "\033[1;31m";
       cout << "TEST REPORT: TIMEOUT." << endl;
       cout << "\033[0m";
@@ -351,7 +355,7 @@ int main(int argc, char **argv) {
       cout << "VCD file: " << vcdfile << endl;
     }
     cout << "Retired instructions: " << instret << endl;
-    cout << "Cycles: " << cycle << endl;  
+    cout << "Simulation clock cycles: " << clock << endl;  
     cout << "\033[0m";    
   }
 
