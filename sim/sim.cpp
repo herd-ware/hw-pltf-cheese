@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-05 06:30:37 pm
+ * Last Modified: 2023-03-06 10:13:06 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -341,27 +341,28 @@ int main(int argc, char **argv) {
       cout << "\033[1;31m";
       cout << "TEST REPORT: FAILED." << endl;
       cout << "\033[0m";
-    }      
+    }    
+
+    if (!check_ninst) {
+      cout << "Expected instructions: " << ninst << endl;
+    }
+    cout << "Retired instructions: " << instret << endl;
+    if (!check_trigger) {
+      cout << "Expected cycles: " << ntrigger << endl;
+    }
+    cout << "Real cycles: " << cycle << endl;   
   // ------------------------------
   //              SIM
   // ------------------------------
   } else {
-    cout << "\033[1;37m";
-    cout << "BOOT file: " << bootfile << endl;
-    if (use_rom) {
-      cout << "ROM file: " << romfile << endl;
-    }
-    if (use_vcd) {
-      cout << "VCD file: " << vcdfile << endl;
-    }
-    cout << "Retired instructions: " << instret << endl;
-    cout << "Simulation clock cycles: " << clock << endl;  
-    cout << "\033[0m";    
+    //cout << "\033[1;37m";
+    //cout << "\033[0m";    
   }
 
   // ------------------------------
   //            COMMON
   // ------------------------------
+  //cout << "\033[1;37m";
   cout << "BOOT file: " << bootfile << endl;
   if (use_rom) {
     cout << "ROM file: " << romfile << endl;
@@ -369,14 +370,8 @@ int main(int argc, char **argv) {
   if (use_vcd) {
     cout << "VCD file: " << vcdfile << endl;
   }
-  if (!check_ninst) {
-    cout << "Expected instructions: " << ninst << endl;
-  }
-  cout << "Retired instructions: " << instret << endl;
-  if (!check_trigger) {
-    cout << "Expected cycles: " << ntrigger << endl;
-  }
-  cout << "Real cycles: " << cycle << endl; 
+  cout << "Simulation clock cycles: " << clock << endl;  
+  //cout << "\033[0m"; 
 
   // ******************************
   //             CLOSE
