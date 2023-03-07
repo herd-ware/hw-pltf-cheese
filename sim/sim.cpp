@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-03 06:43:31 pm
+ * Last Modified: 2023-03-06 10:13:06 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -34,6 +34,7 @@ using namespace std;
 #define RESET_DELAY 50
 
 #define GPIOA_BIT_UARTW   27
+#define GPIOA_BIT_CYCLE   29
 #define GPIOA_BIT_INSTRET 30
 #define GPIOA_BIT_END     31
 
@@ -134,9 +135,10 @@ int main(int argc, char **argv) {
   }
 
 	// Test variables
-  int cycle = 0;      // Cycle
+  int clock = 0;      // Clock cycle since start
   bool end = false;   // Test end
   int result = -1;    // SW result
+  int cycle = 0;      // Cycles
   int instret = 0;    // Retired instructions
 
   if (use_etd) {
@@ -201,15 +203,15 @@ int main(int argc, char **argv) {
     dut->reset = 1;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10);
+      dut_trace->dump(clock * 10);
     }  
 
     dut->clock = 1;
   	dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10 + 5);
+      dut_trace->dump(clock * 10 + 5);
     }
-    cycle = cycle + 1;
+    clock = clock + 1;
   }
   dut->reset = 0;
 
@@ -224,7 +226,7 @@ int main(int argc, char **argv) {
 		dut->clock = 0;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10);
+      dut_trace->dump(clock * 10);
     }   
 
     if (use_etd) {
@@ -237,13 +239,13 @@ int main(int argc, char **argv) {
 		dut->clock = 1;
 		dut->eval();
     if (use_vcd) {
-      dut_trace->dump(cycle * 10 + 5);
+      dut_trace->dump(clock * 10 + 5);
     }   
 
     // ------------------------------
     //             RESET
     // ------------------------------
-    if (use_reset && (cycle > nreset) && (cycle < (nreset + RESET_DELAY))) {
+    if (use_reset && (clock > nreset) && (clock < (nreset + RESET_DELAY))) {
       dut->reset = 1;
     } else {
       dut->reset = 0;
@@ -281,6 +283,11 @@ int main(int argc, char **argv) {
     // ------------------------------
     //             END
     // ------------------------------
+    // Cycles
+    if ((cycle == 0) && (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_CYCLE))) {
+      cycle = dut->io_b_gpio_1_out;
+    }
+
     // Instruction retired
     if ((instret == 0) && (dut->io_b_gpio_0_out & (1 << GPIOA_BIT_INSTRET))) {
       instret = dut->io_b_gpio_1_out;
@@ -293,12 +300,12 @@ int main(int argc, char **argv) {
     }
 
     // Test trigger
-    if (cycle > (ntrigger + TRIGGER_DELAY) && (ntrigger > 0)) {
+    if (clock > (ntrigger + TRIGGER_DELAY) && (ntrigger > 0)) {
       end = true;
       result = 0xffffffff;
     }
 
-    cycle = cycle + 1;
+    clock = clock + 1;
 	}
 
   // ******************************
@@ -326,7 +333,7 @@ int main(int argc, char **argv) {
       cout << "\033[1;33m";
       cout << "TEST REPORT: WRONG INFOS." << endl;
       cout << "\033[0m";
-    } else if (!use_trigger || (cycle >= (ntrigger + TRIGGER_DELAY))) {
+    } else if (!use_trigger || (clock >= (ntrigger + TRIGGER_DELAY))) {
       cout << "\033[1;31m";
       cout << "TEST REPORT: TIMEOUT." << endl;
       cout << "\033[0m";
@@ -334,27 +341,28 @@ int main(int argc, char **argv) {
       cout << "\033[1;31m";
       cout << "TEST REPORT: FAILED." << endl;
       cout << "\033[0m";
-    }      
+    }    
+
+    if (!check_ninst) {
+      cout << "Expected instructions: " << ninst << endl;
+    }
+    cout << "Retired instructions: " << instret << endl;
+    if (!check_trigger) {
+      cout << "Expected cycles: " << ntrigger << endl;
+    }
+    cout << "Real cycles: " << cycle << endl;   
   // ------------------------------
   //              SIM
   // ------------------------------
   } else {
-    cout << "\033[1;37m";
-    cout << "BOOT file: " << bootfile << endl;
-    if (use_rom) {
-      cout << "ROM file: " << romfile << endl;
-    }
-    if (use_vcd) {
-      cout << "VCD file: " << vcdfile << endl;
-    }
-    cout << "Retired instructions: " << instret << endl;
-    cout << "Cycles: " << cycle << endl;  
-    cout << "\033[0m";    
+    //cout << "\033[1;37m";
+    //cout << "\033[0m";    
   }
 
   // ------------------------------
   //            COMMON
   // ------------------------------
+  //cout << "\033[1;37m";
   cout << "BOOT file: " << bootfile << endl;
   if (use_rom) {
     cout << "ROM file: " << romfile << endl;
@@ -362,14 +370,8 @@ int main(int argc, char **argv) {
   if (use_vcd) {
     cout << "VCD file: " << vcdfile << endl;
   }
-  if (!check_ninst) {
-    cout << "Expected instructions: " << ninst << endl;
-  }
-  cout << "Retired instructions: " << instret << endl;
-  if (!check_trigger) {
-    cout << "Expected cycles: " << ntrigger << endl;
-  }
-  cout << "Real cycles: " << cycle << endl; 
+  cout << "Simulation clock cycles: " << clock << endl;  
+  //cout << "\033[0m"; 
 
   // ******************************
   //             CLOSE
