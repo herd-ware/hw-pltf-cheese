@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-02-26 08:59:37 pm
+ * Last Modified: 2023-03-07 08:03:28 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -36,6 +36,14 @@
   #define NCOMMIT 1
   #define NCORECOMMIT 1
 // ------------------------------
+//        CONFIG P32AU1V020
+// ------------------------------
+#elif CONFIG_P32AU1V020
+  #define CORE aubrac
+  #define NDATABIT 32
+  #define NCOMMIT 1
+  #define NCORECOMMIT 1
+// ------------------------------
 //        CONFIG C32AU1V020
 // ------------------------------
 #elif CONFIG_C32AU1V020
@@ -63,6 +71,14 @@
 //        CONFIG C32AB1V000
 // ------------------------------
 #elif CONFIG_C32AB1V000
+  #define CORE abondance
+  #define NDATABIT 32
+  #define NCOMMIT 2
+  #define NCORECOMMIT 2
+// ------------------------------
+//        CONFIG P32AB1V020
+// ------------------------------
+#elif CONFIG_P32AB1V020
   #define CORE abondance
   #define NDATABIT 32
   #define NCOMMIT 2
