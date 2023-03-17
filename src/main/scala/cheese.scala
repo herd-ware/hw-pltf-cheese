@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-03 03:53:24 pm
+ * Last Modified: 2023-03-15 08:56:33 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -297,8 +297,4 @@ class Cheese (p: CheeseParams) extends Module {
       }
     }
   } 
-}
-
-object Cheese extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(CheeseConfigBase), args)
 }

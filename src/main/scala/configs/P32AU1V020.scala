@@ -1,9 +1,9 @@
 /*
- * File: C32AU1V020d.scala
+ * File: P32AU1V020.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-04 11:31:59 am
+ * Last Modified: 2023-03-15 08:31:28 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -23,15 +23,20 @@ import herd.core.abondance.{AbondanceParams,AbondanceConfig}
 import herd.core.abondance.int.{IntUnitIntf}
 
 
-object CheeseConfigC32AU1V020d extends CheeseConfig (
+trait CheeseParamsP32AU1V020 extends CheeseParams {
+  // ******************************
+  //            GLOBAL
+  // ******************************
+  def debug: Boolean  
+
   // ******************************
   //             CORE
   // ******************************
-  pAubrac = Array(new AubracConfig(
+  def pAubrac: Array[AubracParams] = Array(new AubracConfig(
     // ------------------------------
     //            GLOBAL
     // ------------------------------
-    debug = true,
+    debug = debug,
     pcBoot = "00001000",
     nAddrBit = 32,
     nDataBit = 32, 
@@ -39,7 +44,7 @@ object CheeseConfigC32AU1V020d extends CheeseConfig (
     // ------------------------------
     //            CHAMP
     // ------------------------------
-    useChamp = true,
+    useChamp = false,
     nChampReg = 4,
     useChampExtMie = true,
     useChampExtFr = false,
@@ -162,31 +167,26 @@ object CheeseConfigC32AU1V020d extends CheeseConfig (
     nL2Set = 4,
     nL2Line = 4,
     nL2Data = 4
-  )),
-  pAbondance = Array[AbondanceParams](),
-
-  // ******************************
-  //            GLOBAL
-  // ******************************
-  debug = true,    
+  ))
+  def pAbondance: Array[AbondanceParams] = Array[AbondanceParams]()
 
   // ******************************
   //              I/Os
   // ******************************
-  nIOAddrBase = "18000000",
-  nPlicPrio = 8,
-  nGpio = 64,
-  nUart = 1,
-  nUartDefCycle = 50,
-  nUartDepth = 16,
-  nPTimer = 2,
-  useSpiFlash = true,
-  usePs2Keyboard = true,
-  nSpi = 1,
-  nSpiSlave = Array(1),
-  nSpiFifoDepth = 8,
-  nI2c = 1,
-  nI2cFifoDepth = 8,
+  def nIOAddrBase: String = "18000000"
+  def nPlicPrio: Int = 8
+  def nGpio: Int = 64
+  def nUart: Int = 1
+  def nUartDefCycle: Int = 50
+  def nUartDepth: Int = 16
+  def nPTimer: Int = 2
+  def useSpiFlash: Boolean = true
+  def usePs2Keyboard: Boolean = true
+  def nSpi: Int = 1
+  def nSpiSlave: Array[Int] = Array(1)
+  def nSpiFifoDepth: Int = 8
+  def nI2c: Int = 1
+  def nI2cFifoDepth: Int = 8
 
   // ******************************
   //           INTERFACE
@@ -194,9 +194,9 @@ object CheeseConfigC32AU1V020d extends CheeseConfig (
   // ------------------------------
   //             AXI4
   // ------------------------------
-  useAxi4 = true,
-  nAxi4AddrBase = "08000000",
-  nAxi4Byte = "80000000",
+  def useAxi4: Boolean = true
+  def nAxi4AddrBase: String = "08000000"
+  def nAxi4Byte: String = "80000000"
 
   // ******************************
   //             MEMORY
@@ -204,24 +204,28 @@ object CheeseConfigC32AU1V020d extends CheeseConfig (
   // ------------------------------
   //             BOOT
   // ------------------------------
-  nBootAddrBase = "00000000",
-  nBootByte = "00040000",
+  def nBootAddrBase: String = "00000000"
+  def nBootByte: String = "00040000"
 
   // ------------------------------
   //              ROM
   // ------------------------------
-  useRom = true,
-  nRomAddrBase = "04000000",
-  nRomByte = "00040000",
+  def useRom: Boolean = true
+  def nRomAddrBase: String = "04000000"
+  def nRomByte: String = "00040000"
 
   // ------------------------------
   //              RAM
   // ------------------------------
-  useRam = true,
-  nRamAddrBase = "08000000",
-  nRamByte = "00040000"
-)
+  def useRam: Boolean = true
+  def nRamAddrBase: String = "08000000"
+  def nRamByte: String = "00040000"
+}
 
-object CheeseSimC32AU1V020 extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new CheeseSim(CheeseConfigC32AU1V020d), args)
+case class CheeseConfigP32AU1V020 (    
+  debug: Boolean
+) extends CheeseParamsP32AU1V020
+
+object CheeseP32AU1V020 extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(new CheeseConfigP32AU1V020(debug = false)), args)
 }
