@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-06 10:13:06 am
+ * Last Modified: 2023-03-21 04:42:15 pm
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -29,6 +29,7 @@ using namespace std;
 
 #include "lib/configs.h"
 #include "lib/etd.h"
+#include "lib/hpc.h"
 
 #define TRIGGER_DELAY 100
 #define RESET_DELAY 50
@@ -63,6 +64,7 @@ int main(int argc, char **argv) {
   bool use_uart_in = false;
   bool use_uart_out = false;
   bool use_etd = false;
+  bool use_hpc = false;
 
   for (int a = 1; a < argc; a++) {
     string arg = argv[a];
@@ -112,6 +114,9 @@ int main(int argc, char **argv) {
       use_etd = true;
       etdfile = argv[a + 1];
       a++;
+    }
+    if (arg == "--hpc") {
+      use_hpc = true;
     }
   }
 
@@ -372,6 +377,14 @@ int main(int argc, char **argv) {
   }
   cout << "Simulation clock cycles: " << clock << endl;  
   //cout << "\033[0m"; 
+
+  // ------------------------------
+  //             HPC
+  // ------------------------------
+  if (use_hpc) {
+    HPC_DISPLAY_N(aubrac, CORE_AUBRAC)
+    HPC_DISPLAY_N(abondance, CORE_ABONDANCE)
+  }
 
   // ******************************
   //             CLOSE
