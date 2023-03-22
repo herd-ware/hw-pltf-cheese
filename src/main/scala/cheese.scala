@@ -1,10 +1,10 @@
 /*
- * File: cheese.scala
+ * File: cheese.scala                                                          *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-15 08:56:33 am
- * Modified By: Mathieu Escouteloup
+ * Last Modified: 2023-03-22 02:28:35 pm                                       *
+ * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -261,7 +261,7 @@ class Cheese (p: CheeseParams) extends Module {
   // ******************************
   //             REPORT
   // ******************************
-  println("Memory bus size: " + (p.pLLBus.nDataByte * 8) + "-bit.")
+  m_llcross.report("PLATFORM LAST-LEVEL")
 
   // ******************************
   //             DEBUG
