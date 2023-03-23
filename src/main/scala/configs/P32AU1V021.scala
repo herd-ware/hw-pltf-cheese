@@ -1,9 +1,9 @@
 /*
- * File: base.scala
+ * File: P32AU1V021.scala
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-15 08:07:47 am
+ * Last Modified: 2023-03-15 08:32:54 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -23,7 +23,7 @@ import herd.core.abondance.{AbondanceParams,AbondanceConfig}
 import herd.core.abondance.int.{IntUnitIntf}
 
 
-trait CheeseParamsBase extends CheeseParams {
+trait CheeseParamsP32AU1V021 extends CheeseParams {
   // ******************************
   //            GLOBAL
   // ******************************
@@ -57,10 +57,10 @@ trait CheeseParamsBase extends CheeseParams {
     // ------------------------------
     //           FRONT END
     // ------------------------------
-    nFetchInstr = 1,
+    nFetchInstr = 2,
     useIMemSeq = true,
     useIf1Stage = false,
-    nFetchBufferDepth = 2,
+    nFetchBufferDepth = 4,
 
     // ------------------------------
     //       NEXT-LINE PREDICTOR
@@ -77,10 +77,10 @@ trait CheeseParamsBase extends CheeseParams {
     //           BACK END
     // ------------------------------
     useExtM = true,
-    useExtA = false,
-    useExtB = false,
+    useExtA = true,
+    useExtB = true,
     useExtZifencei = true,
-    useExtZicbo = false,
+    useExtZicbo = true,
     nExStage = 1,
     useMemStage = true,
     useBranchReg = true,
@@ -100,7 +100,7 @@ trait CheeseParamsBase extends CheeseParams {
     // ------------------------------
     //           L1I CACHE
     // ------------------------------
-    useL1I = false,
+    useL1I = true,
     nL1INextDataByte = 8,
     nL1INextLatency = 1,
 
@@ -122,7 +122,7 @@ trait CheeseParamsBase extends CheeseParams {
     // ------------------------------
     //           L1D CACHE
     // ------------------------------
-    useL1D = false,
+    useL1D = true,
     nL1DNextDataByte = 8,
     nL1DNextLatency = 1,
 
@@ -144,7 +144,7 @@ trait CheeseParamsBase extends CheeseParams {
     // ------------------------------
     //           L2 CACHE
     // ------------------------------
-    useL2 = false,
+    useL2 = true,
     nL2NextDataByte = 8,
     useL2ReqReg = true,
     useL2AccReg = false,
@@ -222,10 +222,10 @@ trait CheeseParamsBase extends CheeseParams {
   def nRamByte: String = "00040000"
 }
 
-case class CheeseConfigBase (    
+case class CheeseConfigP32AU1V021 (    
   debug: Boolean
-) extends CheeseParamsBase
+) extends CheeseParamsP32AU1V021
 
-object CheeseBase extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(new CheeseConfigBase(debug = false)), args)
+object CheeseP32AU1V021 extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(new CheeseConfigP32AU1V021(debug = false)), args)
 }

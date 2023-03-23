@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-03 06:33:12 pm
+ * Last Modified: 2023-03-15 08:57:07 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -114,8 +114,4 @@ class CheeseSim (p: CheeseParams) extends Module {
     // ------------------------------
     io.o_etd.get := m_cheese.io.o_etd.get
   } 
-}
-
-object CheeseSim extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new CheeseSim(CheeseConfigBase), args)
 }
