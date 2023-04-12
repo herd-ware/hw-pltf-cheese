@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-04-03 10:13:12 am
+ * Last Modified: 2023-04-12 11:49:22 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -383,6 +383,7 @@ int main(int argc, char **argv) {
   // ------------------------------
   if (use_hpc) {
     HPC_DISPLAY_N(aubrac, CORE_AUBRAC)
+    HPC_DISPLAY_N(salers, CORE_SALERS)
     HPC_DISPLAY_N(abondance, CORE_ABONDANCE)
   }
 
