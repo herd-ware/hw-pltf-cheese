@@ -1,10 +1,10 @@
 /*
- * File: C32AB1V000.scala
+ * File: C32AB1V000.scala                                                      *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-15 08:54:47 am
- * Modified By: Mathieu Escouteloup
+ * Last Modified: 2023-04-12 10:42:29 am                                       *
+ * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -19,6 +19,7 @@ import chisel3._
 import chisel3.util._
 
 import herd.core.aubrac.{AubracParams,AubracConfig}
+import herd.core.salers.{SalersParams,SalersConfig}
 import herd.core.abondance.{AbondanceParams,AbondanceConfig}
 import herd.core.abondance.int.{IntUnitIntf}
 
@@ -33,6 +34,7 @@ trait CheeseParamsC32AB1V000 extends CheeseParams {
   //             CORE
   // ******************************
   def pAubrac: Array[AubracParams] = Array[AubracParams]()
+  def pSalers: Array[SalersParams] = Array[SalersParams]()
   def pAbondance: Array[AbondanceParams] = Array(new AbondanceConfig(
     // ------------------------------
     //            GLOBAL

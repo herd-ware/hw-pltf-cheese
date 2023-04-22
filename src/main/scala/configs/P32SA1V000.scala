@@ -1,9 +1,9 @@
 /*
- * File: P32AU1V020.scala                                                      *
+ * File: P32SA1V000.scala                                                      *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-04-12 10:43:01 am                                       *
+ * Last Modified: 2023-04-12 11:41:23 am                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -24,7 +24,7 @@ import herd.core.abondance.{AbondanceParams,AbondanceConfig}
 import herd.core.abondance.int.{IntUnitIntf}
 
 
-trait CheeseParamsP32AU1V020 extends CheeseParams {
+trait CheeseParamsP32SA1V000 extends CheeseParams {
   // ******************************
   //            GLOBAL
   // ******************************
@@ -33,7 +33,8 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
   // ******************************
   //             CORE
   // ******************************
-  def pAubrac: Array[AubracParams] = Array(new AubracConfig(
+  def pAubrac: Array[AubracParams] = Array[AubracParams]()
+  def pSalers: Array[SalersParams] = Array(new SalersConfig(
     // ------------------------------
     //            GLOBAL
     // ------------------------------
@@ -58,10 +59,12 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     // ------------------------------
     //           FRONT END
     // ------------------------------
-    nFetchInstr = 1,
+    nFetchInstr = 2,
     useIMemSeq = true,
     useIf1Stage = false,
-    nFetchBufferDepth = 2,
+    useIf2Stage = false,
+    nFetchBufferDepth = 8,  
+    useFastJal = false,
 
     // ------------------------------
     //       NEXT-LINE PREDICTOR
@@ -77,14 +80,19 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     // ------------------------------
     //           BACK END
     // ------------------------------
-    useExtM = true,
     useExtA = false,
-    useExtB = false,
     useExtZifencei = true,
     useExtZicbo = true,
-    nExStage = 1,
-    useMemStage = true,
-    useBranchReg = true,
+    nBackPort = 2,
+    nExStage = 2, 
+    nAlu = 1,
+    nMulDiv = 1,
+    isBAlu = Array(false, false),
+    isClMul = Array(false),
+    useBranchReg = false,
+    nLsuMemDepth = 2,
+    nGprReadPhy = 4,
+    nGprWritePhy = 2,
 
     // ------------------------------
     //              I/Os
@@ -101,7 +109,7 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     // ------------------------------
     //           L1I CACHE
     // ------------------------------
-    useL1I = true,
+    useL1I = false,
     nL1INextDataByte = 8,
     nL1INextLatency = 1,
 
@@ -123,7 +131,7 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     // ------------------------------
     //           L1D CACHE
     // ------------------------------
-    useL1D = true,
+    useL1D = false,
     nL1DNextDataByte = 8,
     nL1DNextLatency = 1,
 
@@ -145,7 +153,7 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     // ------------------------------
     //           L2 CACHE
     // ------------------------------
-    useL2 = true,
+    useL2 = false,
     nL2NextDataByte = 8,
     useL2ReqReg = true,
     useL2AccReg = false,
@@ -169,7 +177,6 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
     nL2Line = 4,
     nL2Data = 4
   ))
-  def pSalers: Array[SalersParams] = Array[SalersParams]()
   def pAbondance: Array[AbondanceParams] = Array[AbondanceParams]()
 
   // ******************************
@@ -224,10 +231,10 @@ trait CheeseParamsP32AU1V020 extends CheeseParams {
   def nRamByte: String = "00040000"
 }
 
-case class CheeseConfigP32AU1V020 (    
+case class CheeseConfigP32SA1V000 (    
   debug: Boolean
-) extends CheeseParamsP32AU1V020
+) extends CheeseParamsP32SA1V000
 
-object CheeseP32AU1V020 extends App {
-  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(new CheeseConfigP32AU1V020(debug = false)), args)
+object CheeseP32SA1V000 extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new Cheese(new CheeseConfigP32SA1V000(debug = false)), args)
 }

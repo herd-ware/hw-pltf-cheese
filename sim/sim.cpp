@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-21 04:42:15 pm
+ * Last Modified: 2023-04-12 11:49:22 am
  * Modified By: Mathieu Escouteloup
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -177,12 +177,12 @@ int main(int argc, char **argv) {
   dut->io_i_host_uart_config_0_is8bit = 1;
   dut->io_i_host_uart_config_0_parity = 1;
   dut->io_i_host_uart_config_0_stop = 1;
-  dut->io_i_host_uart_config_0_ncycle = 50;
+  dut->io_i_host_uart_config_0_cycle = 50;
 
   dut->io_b_host_uart_port_0_rec_0_ready = 1;
 
   if (use_uart_in || use_uart_out) {
-    dut->io_i_host_uart_config_0_ncycle = nuartcycle;
+    dut->io_i_host_uart_config_0_cycle = nuartcycle;
   }
 
   ifstream f_uart;   
@@ -383,6 +383,7 @@ int main(int argc, char **argv) {
   // ------------------------------
   if (use_hpc) {
     HPC_DISPLAY_N(aubrac, CORE_AUBRAC)
+    HPC_DISPLAY_N(salers, CORE_SALERS)
     HPC_DISPLAY_N(abondance, CORE_ABONDANCE)
   }
 

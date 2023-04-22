@@ -3,7 +3,7 @@
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-22 02:28:35 pm                                       *
+ * Last Modified: 2023-04-12 11:43:36 am                                       *
  * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
@@ -25,6 +25,7 @@ import herd.common.mem.axi4._
 import herd.common.mem.ram._
 import herd.core.aubrac._
 import herd.core.aubrac.common._
+import herd.core.salers.{Salers}
 import herd.core.abondance.{Abondance}
 import herd.io.periph.uart.{UartIO}
 import herd.io.periph.ps2.{Ps2IO}
@@ -34,9 +35,10 @@ import herd.io.pltf._
 
 
 class Cheese (p: CheeseParams) extends Module {
-  require ((p.pAubrac.size > 0) != (p.pAbondance.size > 0), "Only one type of core is possible.")
-  require ((p.pAubrac.size < 2),     "Only one Aubrac core is possible.")
-  require ((p.pAbondance.size < 2),  "Only one Abondance core is possible.")
+  require ((p.nCore == 1), "Only one core is possible.")
+  require ((p.nAubrac < 2),     "Only one Aubrac core is possible.")
+  require ((p.nSalers < 2),  "Only one Salers core is possible.")
+  require ((p.nAbondance < 2),  "Only one Abondance core is possible.")
   
   val io = IO(new Bundle {
     val b_gpio = Vec(p.nGpio32b, new BiDirectIO(UInt(32.W)))
@@ -54,12 +56,16 @@ class Cheese (p: CheeseParams) extends Module {
     val o_etd = if (p.debug) Some(Output(Vec(p.nCommit, new EtdBus(p.nHart, p.nAddrBit, p.nInstrBit)))) else None
   })  
   
-  val m_aubrac = for (po <- p.pAubrac) yield {
-    val m_aubrac = Module(new Aubrac(po))
+  val m_aubrac = for (pa <- p.pAubrac) yield {
+    val m_aubrac = Module(new Aubrac(pa))
     m_aubrac
   } 
-  val m_abondance = for (pg <- p.pAbondance) yield {
-    val m_abondance = Module(new Abondance(pg))
+  val m_salers = for (ps <- p.pSalers) yield {
+    val m_salers = Module(new Salers(ps))
+    m_salers
+  } 
+  val m_abondance = for (pa <- p.pAbondance) yield {
+    val m_abondance = Module(new Abondance(pa))
     m_abondance
   } 
   val m_llcross = Module(new Mb4sCrossbar(p.pLLCross))
@@ -75,18 +81,24 @@ class Cheese (p: CheeseParams) extends Module {
   // Interrupts
   if (p.useChamp) {
     for (tl <- 0 until p.nChampTrapLvl) {
-      if (p.pAbondance.size > 0) {
+      if (p.nAbondance > 0) {
         m_abondance(0).io.i_irq_lei.get(tl) := m_io.io.o_irq_lei.get(0)(tl)
         m_abondance(0).io.i_irq_lsi.get(tl) := m_io.io.o_irq_lsi.get(0)(tl)
+      } else if (p.nSalers > 0) {
+        m_salers(0).io.i_irq_lei.get(tl) := m_io.io.o_irq_lei.get(0)(tl)
+        m_salers(0).io.i_irq_lsi.get(tl) := m_io.io.o_irq_lsi.get(0)(tl)
       } else {
         m_aubrac(0).io.i_irq_lei.get(tl) := m_io.io.o_irq_lei.get(0)(tl)
         m_aubrac(0).io.i_irq_lsi.get(tl) := m_io.io.o_irq_lsi.get(0)(tl)
       }
     }
   } else {
-    if (p.pAbondance.size > 0) {
+    if (p.nAbondance > 0) {
       m_abondance(0).io.i_irq_mei.get := m_io.io.o_irq_mei.get(0)
       m_abondance(0).io.i_irq_msi.get := m_io.io.o_irq_msi.get(0)
+    } else if (p.nSalers > 0) {
+      m_salers(0).io.i_irq_mei.get := m_io.io.o_irq_mei.get(0)
+      m_salers(0).io.i_irq_msi.get := m_io.io.o_irq_msi.get(0)
     } else {
       m_aubrac(0).io.i_irq_mei.get := m_io.io.o_irq_mei.get(0)
       m_aubrac(0).io.i_irq_msi.get := m_io.io.o_irq_msi.get(0)
@@ -99,8 +111,10 @@ class Cheese (p: CheeseParams) extends Module {
   val m_slct = if (p.useField) Some(Module(new StaticSlct(p.nField, p.nPart, 1))) else None
 
   if (p.useField) {
-    if (p.pAbondance.size > 0) {
+    if (p.nAbondance > 0) {
       m_pall.get.io.b_part <> m_abondance(0).io.b_pall.get
+    } else if (p.nSalers > 0) {
+      m_pall.get.io.b_part <> m_salers(0).io.b_pall.get
     } else {
       m_pall.get.io.b_part <> m_aubrac(0).io.b_pall.get
     }
@@ -115,8 +129,10 @@ class Cheese (p: CheeseParams) extends Module {
   var mem: Int = 0
   
   if (p.useField) {
-    if (p.pAbondance.size > 0) {
+    if (p.nAbondance > 0) {
       m_llcross.io.b_field.get <> m_abondance(0).io.b_field.get
+    } else if (p.nSalers > 0) {
+      m_llcross.io.b_field.get <> m_salers(0).io.b_field.get
     } else {
       m_llcross.io.b_field.get <> m_aubrac(0).io.b_field.get
     }    
@@ -126,29 +142,43 @@ class Cheese (p: CheeseParams) extends Module {
   }
 
   var v_mllcross: Int = 0
-  for (g <- 0 until p.pAbondance.size) {
-    if (p.pAbondance(g).useL2) {
-      m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(0).io.b_mem.get
+  for (a <- 0 until p.nAbondance) {
+    if (p.pAbondance(a).useL2) {
+      m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(a).io.b_mem.get
+      v_mllcross = v_mllcross + 1
     } else {
-      if (p.pAbondance(g).useL1D) {
-        m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(0).io.b_dmem.get
+      if (p.pAbondance(a).useL1D) {
+        m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(a).io.b_dmem.get
         v_mllcross = v_mllcross + 1
       } else {
-        m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(0).io.b_d0mem.get
-        m_llcross.io.b_m(v_mllcross + 1) <> m_abondance(0).io.b_d1mem.get
+        m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(a).io.b_d0mem.get
+        m_llcross.io.b_m(v_mllcross + 1) <> m_abondance(a).io.b_d1mem.get
         v_mllcross = v_mllcross + 2
       }
-      m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(0).io.b_imem.get
+      m_llcross.io.b_m(v_mllcross + 0) <> m_abondance(a).io.b_imem.get
       v_mllcross = v_mllcross + 1
     }
   }
 
-  for (o <- 0 until p.pAubrac.size) {
-    if (p.pAubrac(o).useL2) {
-      m_llcross.io.b_m(v_mllcross + 0) <> m_aubrac(0).io.b_mem.get
+  for (s <- 0 until p.nSalers) {
+    if (p.pSalers(s).useL2) {
+      m_llcross.io.b_m(v_mllcross + 0) <> m_salers(s).io.b_mem.get
+      v_mllcross = v_mllcross + 1
     } else {
-      m_llcross.io.b_m(v_mllcross + 0) <> m_aubrac(0).io.b_dmem.get
-      m_llcross.io.b_m(v_mllcross + 1) <> m_aubrac(0).io.b_imem.get
+      m_llcross.io.b_m(v_mllcross + 0) <> m_salers(s).io.b_dmem.get
+      m_llcross.io.b_m(v_mllcross + 1) <> m_salers(s).io.b_imem.get
+      v_mllcross = v_mllcross + 2
+    }
+  }
+
+  for (a <- 0 until p.nAubrac) {
+    if (p.pAubrac(a).useL2) {
+      m_llcross.io.b_m(v_mllcross + 0) <> m_aubrac(a).io.b_mem.get
+      v_mllcross = v_mllcross + 1
+    } else {
+      m_llcross.io.b_m(v_mllcross + 0) <> m_aubrac(a).io.b_dmem.get
+      m_llcross.io.b_m(v_mllcross + 1) <> m_aubrac(a).io.b_imem.get
+      v_mllcross = v_mllcross + 2
     }      
   }
 
@@ -159,8 +189,10 @@ class Cheese (p: CheeseParams) extends Module {
   //              BOOT
   // ------------------------------
   if (p.useField) {
-    if (p.pAbondance.size > 0) {
+    if (p.nAbondance > 0) {
       m_boot.io.b_field.get <> m_abondance(0).io.b_field.get        
+    } else if (p.nSalers > 0) {
+      m_boot.io.b_field.get <> m_salers(0).io.b_field.get        
     } else {
       m_boot.io.b_field.get <> m_aubrac(0).io.b_field.get        
     }
@@ -175,8 +207,10 @@ class Cheese (p: CheeseParams) extends Module {
   // ------------------------------
   if (p.useRom) {
     if (p.useField) {
-      if (p.pAbondance.size > 0) {
+      if (p.nAbondance > 0) {
         m_rom.get.io.b_field.get <> m_abondance(0).io.b_field.get        
+      } else if (p.nSalers > 0) {
+        m_rom.get.io.b_field.get <> m_salers(0).io.b_field.get        
       } else {
         m_rom.get.io.b_field.get <> m_aubrac(0).io.b_field.get        
       }
@@ -192,8 +226,10 @@ class Cheese (p: CheeseParams) extends Module {
   // ------------------------------
   if (p.useRam) {
     if (p.useField) {
-      if (p.pAbondance.size > 0) {
+      if (p.nAbondance > 0) {
         m_ram.get.io.b_field.get <> m_abondance(0).io.b_field.get
+      } else if (p.nSalers > 0) {
+        m_ram.get.io.b_field.get <> m_salers(0).io.b_field.get
       } else {
         m_ram.get.io.b_field.get <> m_aubrac(0).io.b_field.get
       }      
@@ -208,8 +244,10 @@ class Cheese (p: CheeseParams) extends Module {
   //             I/Os
   // ------------------------------
   if (p.useField) {
-    if (p.pAbondance.size > 0) {
+    if (p.nAbondance > 0) {
       m_io.io.b_field.get <> m_abondance(0).io.b_field.get
+    } else if (p.nSalers > 0) {
+      m_io.io.b_field.get <> m_salers(0).io.b_field.get
     } else {
       m_io.io.b_field.get <> m_aubrac(0).io.b_field.get
     }    
@@ -246,8 +284,10 @@ class Cheese (p: CheeseParams) extends Module {
       if (p.useRom) w_free(0) := m_rom.get.io.b_field.get(f).free else w_free(0) := true.B
       if (p.useRam) w_free(1) := m_ram.get.io.b_field.get(f).free else w_free(1) := true.B
       
-      if (p.pAbondance.size > 0) {
+      if (p.nAbondance > 0) {
         m_abondance(0).io.b_field.get(f).free := m_llcross.io.b_field.get(f).free & m_io.io.b_field.get(f).free & w_free.asUInt.andR
+      } else if (p.nSalers > 0) {
+        m_salers(0).io.b_field.get(f).free := m_llcross.io.b_field.get(f).free & m_io.io.b_field.get(f).free & w_free.asUInt.andR
       } else {
         m_aubrac(0).io.b_field.get(f).free := m_llcross.io.b_field.get(f).free & m_io.io.b_field.get(f).free & w_free.asUInt.andR
       }
@@ -270,11 +310,14 @@ class Cheese (p: CheeseParams) extends Module {
     // ------------------------------
     //            SIGNALS
     // ------------------------------
-    for (no <- 0 until p.nAubrac) {
-      io.o_dbg.get.aubrac(no) := m_aubrac(no).io.o_dbg.get
+    for (a <- 0 until p.nAubrac) {
+      io.o_dbg.get.aubrac(a) := m_aubrac(a).io.o_dbg.get
     }
-    for (ng <- 0 until p.nAbondance) {
-      io.o_dbg.get.abondance(ng) := m_abondance(ng).io.o_dbg.get
+    for (s <- 0 until p.nSalers) {
+      io.o_dbg.get.salers(s) := m_salers(s).io.o_dbg.get
+    }
+    for (a <- 0 until p.nAbondance) {
+      io.o_dbg.get.abondance(a) := m_abondance(a).io.o_dbg.get
     }
 
     dontTouch(m_llcross.io.b_m)
@@ -285,14 +328,21 @@ class Cheese (p: CheeseParams) extends Module {
     // ------------------------------
     var e: Int = 0
 
-    for (o <- 0 until p.nAubrac) {
-      io.o_etd.get(e) := m_aubrac(e).io.o_etd.get
+    for (a <- 0 until p.nAubrac) {
+      io.o_etd.get(e) := m_aubrac(a).io.o_etd.get
       e = e + 1
     }
 
-    for (g <- 0 until p.nAbondance) {
-      for (c <- 0 until p.pAbondance(g).nCommit) {
-        io.o_etd.get(e) := m_abondance(g).io.o_etd.get(c)
+    for (s <- 0 until p.nSalers) {
+      for (c <- 0 until p.pSalers(s).nCommit) {
+        io.o_etd.get(e) := m_salers(s).io.o_etd.get(c)
+        e = e + 1
+      }
+    }
+
+    for (a <- 0 until p.nAbondance) {
+      for (c <- 0 until p.pAbondance(a).nCommit) {
+        io.o_etd.get(e) := m_abondance(a).io.o_etd.get(c)
         e = e + 1
       }
     }

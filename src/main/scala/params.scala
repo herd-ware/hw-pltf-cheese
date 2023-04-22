@@ -1,10 +1,10 @@
 /*
- * File: params.scala
+ * File: params.scala                                                          *
  * Created Date: 2023-02-26 09:45:59 am                                        *
  * Author: Mathieu Escouteloup                                                 *
  * -----                                                                       *
- * Last Modified: 2023-03-03 03:52:36 pm
- * Modified By: Mathieu Escouteloup
+ * Last Modified: 2023-04-12 11:46:39 am                                       *
+ * Modified By: Mathieu Escouteloup                                            *
  * -----                                                                       *
  * License: See LICENSE.md                                                     *
  * Copyright (c) 2023 HerdWare                                                 *
@@ -23,6 +23,7 @@ import herd.common.mem.mb4s._
 import herd.common.mem.axi4._
 import herd.common.mem.ram._
 import herd.core.aubrac._
+import herd.core.salers._
 import herd.core.abondance._
 import herd.io.pltf._
 
@@ -32,40 +33,51 @@ trait CheeseParams extends GenParams {
   //             CORE
   // ******************************
   def pAubrac: Array[AubracParams]
+  def pSalers: Array[SalersParams]
   def pAbondance: Array[AbondanceParams]
 
   def nAubrac: Int = pAubrac.size
+  def nSalers: Int = pSalers.size
   def nAbondance: Int = pAbondance.size
+  def nCore: Int = nAubrac + nSalers + nAbondance
 
   // ******************************
   //            GLOBAL
   // ******************************
   def debug: Boolean
   def nAddrBit: Int = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).nAddrBit
+    } else if (nSalers > 0) {
+      return pSalers(0).nAddrBit
     } else {
       return pAubrac(0).nAddrBit
     }    
   }
   def nInstrBit: Int = 32
   def nDataBit: Int = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).nDataBit
+    } else if (nSalers > 0) {
+      return pSalers(0).nDataBit
     } else {
       return pAubrac(0).nDataBit
     }    
   }
-  def nHart: Int = nAubrac + nAbondance
+  def nHart: Int = nAubrac + nSalers + nAbondance
   def nCommit: Int = {
     var c: Int = 0
 
-    for (o <- 0 until nAubrac) {
+    for (a <- 0 until nAubrac) {
       c = c + 1
     }
 
-    for (g <- 0 until nAbondance) {
-      c = c + pAbondance(g).nCommit
+    for (s <- 0 until nSalers) {
+      c = c + pSalers(s).nCommit
+    }
+
+    for (a <- 0 until nAbondance) {
+      c = c + pAbondance(a).nCommit
     }
 
     c
@@ -75,37 +87,47 @@ trait CheeseParams extends GenParams {
   //            CHAMP
   // ******************************
   def useChamp: Boolean = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).useChamp
+    } else if (nSalers > 0) {
+      return pSalers(0).useChamp
     } else {
       return pAubrac(0).useChamp
     }    
   }
   def nChampTrapLvl: Int = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).nChampTrapLvl
+    } else if (nSalers > 0) {
+      return pSalers(0).nChampTrapLvl
     } else {
       return pAubrac(0).nChampTrapLvl
     }    
   }
   def useField: Boolean = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).useField
+    } else if (nSalers > 0) {
+      return pSalers(0).useField
     } else {
       return pAubrac(0).useField
     }    
   }
   def nField: Int = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).nField
+    } else if (nSalers > 0) {
+      return pSalers(0).nField
     } else {
       return pAubrac(0).nField
     }    
   }
   def multiField: Boolean = true
   def nPart: Int = {
-    if (pAbondance.size > 0) {
+    if (nAbondance > 0) {
       return pAbondance(0).nPart
+    } else if (nSalers > 0) {
+      return pSalers(0).nPart
     } else {
       return pAubrac(0).nPart
     }    
@@ -117,26 +139,35 @@ trait CheeseParams extends GenParams {
   def pLLArray: Array[Mb4sParams] = {
     var pbus = Array[Mb4sParams]()
 
-    for (g <- 0 until pAbondance.size) {
-      if (pAbondance(g).useL2) {
-        pbus = pbus :+ pAbondance(g).pLLBus
+    for (a <- 0 until nAbondance) {
+      if (pAbondance(a).useL2) {
+        pbus = pbus :+ pAbondance(a).pLLBus
       } else {
-        if (pAbondance(g).useL1D) {
-          pbus = pbus :+ pAbondance(g).pLLDBus
+        if (pAbondance(a).useL1D) {
+          pbus = pbus :+ pAbondance(a).pLLDBus
         } else {
-          pbus = pbus :+ pAbondance(g).pLLDBus
-          pbus = pbus :+ pAbondance(g).pLLDBus
+          pbus = pbus :+ pAbondance(a).pLLDBus
+          pbus = pbus :+ pAbondance(a).pLLDBus
         }
-        pbus = pbus :+ pAbondance(g).pLLIBus
+        pbus = pbus :+ pAbondance(a).pLLIBus
       } 
     }
 
-    for (o <- 0 until pAubrac.size) {
-      if (pAubrac(o).useL2) {
-        pbus = pbus :+ pAubrac(o).pLLBus
+    for (s <- 0 until nSalers) {
+      if (pSalers(s).useL2) {
+        pbus = pbus :+ pSalers(s).pLLBus
       } else {
-        pbus = pbus :+ pAubrac(o).pLLDBus
-        pbus = pbus :+ pAubrac(o).pLLIBus
+        pbus = pbus :+ pSalers(s).pLLDBus
+        pbus = pbus :+ pSalers(s).pLLIBus
+      } 
+    }
+
+    for (a <- 0 until nAubrac) {
+      if (pAubrac(a).useL2) {
+        pbus = pbus :+ pAubrac(a).pLLBus
+      } else {
+        pbus = pbus :+ pAubrac(a).pLLDBus
+        pbus = pbus :+ pAubrac(a).pLLIBus
       }      
     }
 
@@ -303,6 +334,7 @@ case class CheeseConfig (
   //             CORE
   // ******************************
   pAubrac: Array[AubracParams],
+  pSalers: Array[SalersParams],
   pAbondance: Array[AbondanceParams],
 
   // ******************************
